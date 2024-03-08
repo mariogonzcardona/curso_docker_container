@@ -1,0 +1,41 @@
+version: '3.8'
+
+# Definimos las imagenes
+services:
+  app:
+    build: ./frontend
+    ports:
+      - "80:5173"
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      VUE_APP_API_URL: http://localhost:3000
+  api:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      DB_URL: mongodb://db/gamify
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      - db
+  api-test:
+    image: segundo_proyecto-api
+    environment:
+      DB_URL: mongodb://db/gamifytest
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/test:/app/test
+    depends_on:
+      - db
+    command: ["npm", "test"]
+
+  db:
+    image: mongo:5.0.25-focal
+    ports:
+      - "27017:27017"
+    volumes:
+      - gamify-db:/data/db
+volumes:
+  gamify-db:
